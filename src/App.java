@@ -1,4 +1,7 @@
+import java.io.File;
+import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -11,8 +14,8 @@ public class App {
     public static void main(String[] args) throws Exception {
 
         // fazer uma conexão HTTP e buscar os top 250 filmes
-        String url = "https://raw.githubusercontent.com/alura-cursos/imersao-java-2-api/main/MostPopularTVs.json";
-        
+        //String url = "https://raw.githubusercontent.com/alura-cursos/imersao-java-2-api/main/MostPopularTVs.json";
+        String url = "https://raw.githubusercontent.com/alura-cursos/imersao-java-2-api/main/TopMovies.json";
         URI endereco = URI.create(url);
         
         var client = HttpClient.newHttpClient();
@@ -23,22 +26,29 @@ public class App {
         
         String body = response.body();
 
-        System.out.println(body);
-
         // extrair só os dado que interessam (título, poster, classificção)
         var parser = new JsonParser();
 
         List<Map<String, String>> listaDeFilmes = parser.parse(body);
 
+        // Criando um diretório 
+        var diretorio = new File("figurinhas/");
+        diretorio.mkdirs();
+
+
         // exibir e manipular os dados
+        var geradora = new GeradorDeFigurinhas();
         for (Map<String,String> filme : listaDeFilmes) {
-            System.out.println(filme.get("\u001b[1m{title}"));
-            System.out.println(filme.get("image"));
-            System.out.println(filme.get("imDbRating"));
-            System.out.println();
-            
+
+            String urlImagem = filme.get("image");
+            String titulo = filme.get("title");
+
+            InputStream inputStream = new URL(urlImagem).openStream();
+            String nomeArquivo = "figurinhas/" + titulo + ".png";
+
+            geradora.cria(inputStream, nomeArquivo,"TOPEZERA");
+
         }
-        System.out.println("\u001b[1m Alura + Java");
 
     }
 }
